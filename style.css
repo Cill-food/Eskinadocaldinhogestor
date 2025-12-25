@@ -1,0 +1,82 @@
+/* style.css */
+body {
+  background-color: #121212;
+  color: #ffffff;
+}
+.accent-orange {
+  background-color: #ff6f00;
+  color: #121212;
+}
+.accent-orange:hover {
+  background-color: #ff8f00;
+}
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 50;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+.modal-content {
+  background-color: #1e1e1e;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 900px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+@media (max-width: 640px) {
+  .modal-content {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border-radius: 0;
+    padding: 10px;
+  }
+}
+@media (min-width: 768px) {
+  .modal-content {
+    width: 70%;
+  }
+}
+/* Animações sutis */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* Scrollbar custom */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+::-webkit-scrollbar-thumb {
+  background: #ff6f00;
+  border-radius: 4px;
+}
+/* Botões com hover suave */
+button {
+  transition: background-color 0.2s ease;
+}
+.input-error {
+  border: 1px solid red;
+}
+.error-message {
+  color: red;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
