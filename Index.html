@@ -1,0 +1,509 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eskina do Caldinho - Sistema de Gestão Profissional</title>
+    <!-- Tailwind CSS CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas and jspdf for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- Modal de Login -->
+    <div id="modal-login" class="modal" style="display: block">
+      <div class="modal-content max-w-md">
+        <h2 class="text-xl mb-4 text-center">Login de Gerente</h2>
+        <input
+          type="password"
+          id="senha-login"
+          placeholder="Digite a senha"
+          class="bg-gray-800 text-white p-2 rounded mb-4 w-full"
+        />
+        <button id="btn-login" class="accent-orange px-4 py-2 rounded w-full">
+          Entrar
+        </button>
+        <p id="erro-login" class="text-red-500 mt-2 hidden">Senha incorreta!</p>
+      </div>
+    </div>
+
+    <header class="bg-black p-4 text-center hidden" id="header-principal">
+      <h1 class="text-2xl font-bold">
+        Eskina do Caldinho - Gestão Profissional
+      </h1>
+    </header>
+
+    <nav
+      class="flex flex-wrap justify-around bg-gray-900 p-2 hidden"
+      id="nav-principal"
+    >
+      <button id="tab-mesas" class="accent-orange px-4 py-2 rounded m-1">
+        Mesas
+      </button>
+      <button id="tab-caixa" class="bg-gray-700 px-4 py-2 rounded m-1">
+        Fechamento de Caixa
+      </button>
+      <button
+        id="tab-relatorios-semanais"
+        class="bg-gray-700 px-4 py-2 rounded m-1"
+      >
+        Relatórios Semanais
+      </button>
+      <button id="tab-relatorios" class="bg-gray-700 px-4 py-2 rounded m-1">
+        Relatórios Mensais
+      </button>
+      <button id="tab-config" class="bg-gray-700 px-4 py-2 rounded m-1">
+        Configurações
+      </button>
+      <button id="tab-historico" class="bg-gray-700 px-4 py-2 rounded m-1">
+        Histórico de Vendas
+      </button>
+      <button id="tab-estoque" class="bg-gray-700 px-4 py-2 rounded m-1">
+        Estoque
+      </button>
+    </nav>
+
+    <main class="flex-grow p-4 overflow-auto hidden" id="main-principal">
+      <!-- Seção Mesas -->
+      <section
+        id="secao-mesas"
+        class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-4"
+      >
+        <!-- Mesas serão geradas aqui via JS -->
+      </section>
+
+      <!-- Seção Caixa -->
+      <section id="secao-caixa" class="hidden">
+        <h2 class="text-xl mb-4">Fechamento de Caixa</h2>
+        <div class="mb-4 flex items-center">
+          <label for="data-selecionada" class="mr-2">Selecionar Data:</label>
+          <input
+            type="date"
+            id="data-selecionada"
+            class="bg-gray-800 text-white p-2 rounded"
+          />
+          <button
+            id="export-csv-dia"
+            class="accent-orange px-4 py-2 rounded ml-4"
+          >
+            Exportar CSV
+          </button>
+          <button
+            id="export-pdf-dia"
+            class="accent-orange px-4 py-2 rounded ml-2"
+          >
+            Exportar PDF
+          </button>
+        </div>
+        <p id="total-dia" class="mb-4 text-lg font-bold"></p>
+        <h3 class="text-lg mb-2">Produtos Mais Vendidos</h3>
+        <ul id="produtos-vendidos" class="list-disc pl-5 mb-4"></ul>
+        <h3 class="text-lg mb-2">Vendas por Categoria</h3>
+        <canvas id="chart-dia" class="my-4"></canvas>
+        <ul id="vendas-categoria-dia" class="list-disc pl-5 mb-4"></ul>
+        <h3 class="text-lg mb-2">Vendas por Método de Pagamento</h3>
+        <canvas id="chart-pagamento-dia" class="my-4"></canvas>
+        <ul id="pagamentos-dia" class="list-disc pl-5"></ul>
+      </section>
+
+      <!-- Seção Relatórios Semanais -->
+      <section id="secao-relatorios-semanais" class="hidden">
+        <h2 class="text-xl mb-4">Relatórios Semanais</h2>
+        <button
+          id="export-all-semanais"
+          class="accent-orange px-4 py-2 rounded mb-4"
+        >
+          Exportar Todos CSV
+        </button>
+        <div id="lista-semanas" class="space-y-4"></div>
+      </section>
+
+      <!-- Seção Relatórios Mensais -->
+      <section id="secao-relatorios" class="hidden">
+        <h2 class="text-xl mb-4">Relatórios Mensais</h2>
+        <button
+          id="export-all-mensais"
+          class="accent-orange px-4 py-2 rounded mb-4"
+        >
+          Exportar Todos CSV
+        </button>
+        <div id="lista-meses" class="space-y-4"></div>
+      </section>
+
+      <!-- Seção Configurações -->
+      <section id="secao-config" class="hidden">
+        <h2 class="text-xl mb-4">Configurações</h2>
+        <h3 class="text-lg mb-2">Editar Cardápio</h3>
+        <div
+          id="lista-edit-categorias"
+          class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 gap-4 mb-4"
+        ></div>
+        <div id="edit-itens" class="hidden"></div>
+        <button id="add-categoria" class="accent-orange px-4 py-2 rounded mb-4">
+          Adicionar Categoria
+        </button>
+        <button id="add-item" class="accent-orange px-4 py-2 rounded mb-4 ml-2">
+          Adicionar Item
+        </button>
+        <h3 class="text-lg mb-2 mt-4">Alterar Senha</h3>
+        <input
+          type="password"
+          id="nova-senha"
+          placeholder="Nova Senha"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <button
+          id="salvar-senha"
+          class="accent-orange px-4 py-2 rounded w-full"
+        >
+          Salvar Senha
+        </button>
+      </section>
+
+      <!-- Seção Histórico de Vendas -->
+      <section id="secao-historico" class="hidden">
+        <h2 class="text-xl mb-4">Histórico de Vendas</h2>
+        <input
+          type="text"
+          id="busca-historico"
+          placeholder="Buscar por data, mesa ou item..."
+          class="bg-gray-800 text-white p-2 rounded mb-4 w-full"
+        />
+        <div
+          id="lista-historico"
+          class="space-y-4 overflow-auto max-h-96"
+        ></div>
+      </section>
+
+      <!-- Seção Estoque -->
+      <section id="secao-estoque" class="hidden">
+        <h2 class="text-xl mb-4">Gestão de Estoque</h2>
+        <button
+          id="add-ingrediente"
+          class="accent-orange px-4 py-2 rounded mb-4"
+        >
+          Adicionar Ingrediente
+        </button>
+        <table class="w-full bg-gray-800 rounded">
+          <thead>
+            <tr class="bg-gray-700">
+              <th class="p-2">Nome</th>
+              <th class="p-2">Quantidade</th>
+              <th class="p-2">Unidade</th>
+              <th class="p-2">Mínimo</th>
+              <th class="p-2">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-estoque"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <!-- Modal para Mesa -->
+    <div id="modal-mesa" class="modal">
+      <div class="modal-content">
+        <span id="close-modal" class="float-right text-2xl cursor-pointer"
+          >&times;</span
+        >
+        <h2 id="titulo-mesa" class="text-xl mb-4"></h2>
+        <div id="lista-pedidos" class="mb-4 overflow-auto max-h-60"></div>
+        <div class="mb-4">
+          <label for="desconto-mesa">Desconto (%):</label>
+          <input
+            type="number"
+            min="0"
+            max="100"
+            id="desconto-mesa"
+            class="bg-gray-800 text-white p-2 rounded ml-2 w-20"
+            value="0"
+          />
+          <label for="gorjeta-mesa" class="ml-4">Gorjeta (R$):</label>
+          <input
+            type="number"
+            min="0"
+            id="gorjeta-mesa"
+            class="bg-gray-800 text-white p-2 rounded ml-2 w-20"
+            value="0"
+          />
+        </div>
+        <p id="total-mesa" class="font-bold mb-4"></p>
+        <button
+          id="btn-adicionar"
+          class="accent-orange px-4 py-2 rounded mb-2 w-full sm:w-auto"
+        >
+          Adicionar Item
+        </button>
+        <button
+          id="btn-imprimir"
+          class="bg-blue-600 px-4 py-2 rounded mb-2 w-full sm:w-auto ml-2"
+        >
+          Imprimir Conta
+        </button>
+        <button
+          id="btn-finalizar"
+          class="bg-red-600 px-4 py-2 rounded mb-2 w-full sm:w-auto ml-2"
+        >
+          Finalizar Conta
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal para Adicionar Item -->
+    <div id="modal-adicionar" class="modal">
+      <div class="modal-content">
+        <span id="close-adicionar" class="float-right text-2xl cursor-pointer"
+          >&times;</span
+        >
+        <h2 class="text-xl mb-4">Adicionar Item</h2>
+        <input
+          type="text"
+          id="busca-itens"
+          placeholder="Buscar item..."
+          class="bg-gray-800 text-white p-2 rounded mb-4 w-full"
+        />
+        <div
+          id="lista-categorias"
+          class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 gap-4 mb-4"
+        ></div>
+        <div
+          id="lista-itens"
+          class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4 overflow-auto max-h-80"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Modal para Finalizar Conta -->
+    <div id="modal-finalizar" class="modal">
+      <div class="modal-content">
+        <span id="close-finalizar" class="float-right text-2xl cursor-pointer"
+          >&times;</span
+        >
+        <h2 class="text-xl mb-4">Finalizar Conta</h2>
+        <div id="resumo-conta" class="mb-4 overflow-auto max-h-60"></div>
+        <p id="total-final" class="font-bold mb-4"></p>
+        <select
+          id="forma-pagamento"
+          class="bg-gray-800 text-white p-2 rounded mb-4 w-full"
+        >
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Pix">Pix</option>
+          <option value="Cartão">Cartão</option>
+        </select>
+        <button
+          id="confirmar-finalizar"
+          class="accent-orange px-4 py-2 rounded w-full"
+        >
+          Confirmar
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal para Editar Item -->
+    <div id="modal-edit-item" class="modal">
+      <div class="modal-content max-w-md">
+        <span id="close-edit-item" class="float-right text-2xl cursor-pointer"
+          >&times;</span
+        >
+        <h2 class="text-xl mb-4">Editar Item</h2>
+        <input
+          type="text"
+          id="edit-name"
+          placeholder="Nome"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <input
+          type="number"
+          id="edit-price"
+          placeholder="Preço"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <input
+          type="text"
+          id="edit-description"
+          placeholder="Descrição"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <input
+          type="text"
+          id="edit-image"
+          placeholder="URL da Imagem"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <select
+          id="edit-category"
+          class="bg-gray-800 text-white p-2 rounded mb-4 w-full"
+        ></select>
+        <button
+          id="salvar-edit-item"
+          class="accent-orange px-4 py-2 rounded w-full"
+        >
+          Salvar
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal para Adicionar Categoria -->
+    <div id="modal-add-categoria" class="modal">
+      <div class="modal-content max-w-md">
+        <span
+          id="close-add-categoria"
+          class="float-right text-2xl cursor-pointer"
+          >&times;</span
+        >
+        <h2 class="text-xl mb-4">Adicionar Categoria</h2>
+        <input
+          type="text"
+          id="nova-categoria"
+          placeholder="Nome da Categoria"
+          class="bg-gray-800 text-white p-2 rounded mb-4 w-full"
+        />
+        <button
+          id="salvar-categoria"
+          class="accent-orange px-4 py-2 rounded w-full"
+        >
+          Adicionar
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal para Adicionar Item -->
+    <div id="modal-add-item" class="modal">
+      <div class="modal-content max-w-md">
+        <span id="close-add-item" class="float-right text-2xl cursor-pointer"
+          >&times;</span
+        >
+        <h2 class="text-xl mb-4">Adicionar Item</h2>
+        <input
+          type="text"
+          id="add-name"
+          placeholder="Nome"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <input
+          type="number"
+          id="add-price"
+          placeholder="Preço"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <input
+          type="text"
+          id="add-description"
+          placeholder="Descrição"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <input
+          type="text"
+          id="add-image"
+          placeholder="URL da Imagem"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <select
+          id="add-category"
+          class="bg-gray-800 text-white p-2 rounded mb-4 w-full"
+        ></select>
+        <button
+          id="salvar-add-item"
+          class="accent-orange px-4 py-2 rounded w-full"
+        >
+          Adicionar
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal para Ingrediente -->
+    <div id="modal-ingrediente" class="modal">
+      <div class="modal-content max-w-md">
+        <span id="close-ingrediente" class="float-right text-2xl cursor-pointer"
+          >&times;</span
+        >
+        <h2 id="titulo-ingrediente" class="text-xl mb-4">
+          Adicionar/Editar Ingrediente
+        </h2>
+        <input type="hidden" id="id-ing" />
+        <input
+          type="text"
+          id="name-ing"
+          placeholder="Nome"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <input
+          type="number"
+          id="quantidade-ing"
+          placeholder="Quantidade Atual"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        />
+        <select
+          id="unit-ing"
+          class="bg-gray-800 text-white p-2 rounded mb-2 w-full"
+        >
+          <option value="kg">kg</option>
+          <option value="lt">lt</option>
+          <option value="un">un</option>
+          <option value="g">g</option>
+          <option value="ml">ml</option>
+        </select>
+        <input
+          type="number"
+          id="min-qty-ing"
+          placeholder="Quantidade Mínima"
+          class="bg-gray-800 text-white p-2 rounded mb-4 w-full"
+        />
+        <button
+          id="salvar-ingrediente"
+          class="accent-orange px-4 py-2 rounded w-full"
+        >
+          Salvar
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal para Ficha Técnica -->
+    <div id="modal-ficha" class="modal">
+      <div class="modal-content">
+        <span id="close-ficha" class="float-right text-2xl cursor-pointer"
+          >&times;</span
+        >
+        <h2 id="titulo-ficha" class="text-xl mb-4">Ficha Técnica</h2>
+        <div id="lista-ficha" class="mb-4 overflow-auto max-h-60"></div>
+        <select
+          id="select-ing"
+          class="bg-gray-800 text-white p-2 rounded mr-2"
+        ></select>
+        <input
+          type="number"
+          id="qtd-ing"
+          placeholder="Quantidade"
+          class="bg-gray-800 text-white p-2 rounded mr-2 w-32"
+          min="0"
+        />
+        <button id="add-ing-ficha" class="accent-orange px-4 py-2 rounded">
+          Adicionar
+        </button>
+        <button
+          id="salvar-ficha"
+          class="accent-orange px-4 py-2 rounded mt-4 w-full"
+        >
+          Salvar Ficha
+        </button>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="cardapio.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
